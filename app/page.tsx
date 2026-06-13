@@ -294,27 +294,39 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6 text-white">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[420px_1fr]">
-        <aside className="space-y-4">
-          <div className="rounded-2xl bg-slate-900 p-4">
-            <h1 className="mb-2 text-2xl font-bold">Travel Conquest Map</h1>
-            <p className="text-sm text-slate-400">
-              Search places, save them, and organize them in conquest lists.
-            </p>
+    <main className="min-h-screen bg-slate-950 px-6 pb-6 pt-2 text-white">
+      <div className="rounded-2xl  p-4">
+        <h1 className="mb-2 text-4xl font-bold">Travel Conquest Map</h1>
+        <p className="text-m text-slate-400">
+          Search places, save them, and organize them in conquest lists.
+        </p>
+      </div>
+      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr_250px]">
+        <section className="relative">
+          <div className="pointer-events-none absolute left-1/2 top-4 z-[1000] w-full max-w-xl -translate-x-1/2 px-4">
+            <div className="pointer-events-auto rounded-2xl border border-white/20 bg-slate-950/45 p-1 shadow-xl backdrop-blur-md">
+              <LocationSearch
+                lists={lists}
+                onLocationCreated={handleLocationCreated}
+                onListCreated={reloadLocationsAndLists}
+              />
+            </div>
           </div>
 
+          <DynamicMap
+            locations={locations}
+            selectedLocationId={selectedLocationId}
+            selectedListId={selectedListId}
+            selectedListLocationIds={selectedListLocationIds}
+            selectedListColor={selectedListDetails?.color ?? null}
+          />
+        </section>{" "}
+        <aside className="space-y-4">
           {errorMessage && (
             <div className="rounded-2xl bg-red-950 p-4 text-sm text-red-200">
               {errorMessage}
             </div>
           )}
-
-          <LocationSearch
-            lists={lists}
-            onLocationCreated={handleLocationCreated}
-            onListCreated={reloadLocationsAndLists}
-          />
 
           <Lists
             lists={lists}
@@ -340,16 +352,6 @@ export default function Home() {
             handleDeleteLocation={handleDeleteLocation}
           />
         </aside>
-
-        <section>
-          <DynamicMap
-            locations={locations}
-            selectedLocationId={selectedLocationId}
-            selectedListId={selectedListId}
-            selectedListLocationIds={selectedListLocationIds}
-            selectedListColor={selectedListDetails?.color ?? null}
-          />
-        </section>
       </div>
     </main>
   );
