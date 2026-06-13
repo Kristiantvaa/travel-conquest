@@ -208,13 +208,20 @@ export async function getLocationsWithLists(): Promise<LocationWithLists[]> {
     throw error;
   }
 
-  return (data ?? []).map((location) => ({
-    ...location,
-    lists:
+  return (data ?? []).map((location) => {
+    const lists =
       location.conquest_list_locations
         ?.map((item) => item.conquest_lists)
-        .filter(Boolean) ?? [],
-  }));
+        .filter(Boolean) ?? [];
+
+    const listColor = lists[0]?.color ?? null;
+
+    return {
+      ...location,
+      lists,
+      listColor,
+    };
+  });
 }
 
 export async function getListWithLocations(

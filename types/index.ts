@@ -13,6 +13,7 @@ export type Location = {
   id: string;
   name: string;
   description: string | null;
+  listColor: string | null;
   location_type: LocationType;
   status: LocationStatus;
   latitude: number;

@@ -72,7 +72,7 @@ function createMarkerIcon({
   const borderColor =
     status === "visited"
       ? `color-mix(in srgb, ${baseColor} 90%, black)`
-      : `white`;
+      : `color-mix(in srgb, ${baseColor} 30%, white)`;
 
   const symbol =
     status === "visited" ? "✓" : status === "want_to_visit" ? "★" : "";
@@ -205,7 +205,9 @@ export default function MapView({
               position={[location.latitude, location.longitude]}
               icon={createMarkerIcon({
                 status: location.status,
-                color: isInSelectedList ? selectedListColor : null,
+                color: isInSelectedList
+                  ? selectedListColor
+                  : location.listColor,
                 isInSelectedList,
               })}
             >
