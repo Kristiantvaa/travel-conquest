@@ -87,6 +87,11 @@ export default function Home() {
   }
 
   async function handleSelectList(listId: string) {
+    if (selectedListId === listId) {
+      setSelectedListId(null);
+      setSelectedListDetails(null);
+      return;
+    }
     setSelectedListId(listId);
     await reloadSelectedList(listId);
   }
