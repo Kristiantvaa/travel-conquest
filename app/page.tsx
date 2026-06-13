@@ -19,6 +19,7 @@ import type {
   LocationWithLists,
 } from "@/types";
 import Places from "@/components/Places";
+import { Lists } from "@/components/Lists";
 
 export default function Home() {
   const [locations, setLocations] = useState<LocationWithLists[]>([]);
@@ -315,137 +316,22 @@ export default function Home() {
             onListCreated={reloadLocationsAndLists}
           />
 
-          <div className="rounded-2xl bg-slate-900 p-4">
-            <h2 className="mb-4 text-lg font-bold">Lists</h2>
-
-            {lists.length === 0 ? (
-              <p className="text-sm text-slate-400">
-                No lists yet. Create one when saving a location.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {lists.map((list) => (
-                  <button
-                    key={list.id}
-                    type="button"
-                    onClick={() => handleSelectList(list.id)}
-                    className={`w-full rounded-xl px-4 py-3 text-left transition ${
-                      selectedListId === list.id
-                        ? "bg-slate-700 text-white ring-2"
-                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-                    }`}
-                    style={{
-                      borderLeft: `8px solid ${list.color ?? "#8b5cf6"}`,
-                      ringColor: list.color ?? "#8b5cf6",
-                    }}
-                  >
-                    <div className="font-semibold">
-                      {list.icon ?? "🗺️"} {list.name}
-                    </div>
-                    {list.description && (
-                      <div className="text-sm text-slate-400">
-                        {list.description}
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {selectedListDetails && (
-              <div className="mt-4 space-y-4 rounded-2xl border border-slate-700 bg-slate-950 p-3">
-                <div>
-                  <h3 className="font-bold">
-                    {selectedListDetails.icon ?? "🗺️"}{" "}
-                    {selectedListDetails.name}
-                  </h3>
-                  <p className="text-sm text-slate-400">
-                    {selectedListDetails.locations.length} locations
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">
-                    List color
-                  </label>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={selectedListColor}
-                      onChange={(event) =>
-                        setSelectedListColor(event.target.value)
-                      }
-                      className="h-10 w-14 cursor-pointer rounded-lg border border-slate-700 bg-slate-900"
-                    />
-
-                    <input
-                      value={selectedListColor}
-                      onChange={(event) =>
-                        setSelectedListColor(event.target.value)
-                      }
-                      className="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={handleUpdateSelectedListColor}
-                      className="rounded-xl bg-purple-600 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-500"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-
-                {isListLoading ? (
-                  <p className="text-sm text-slate-400">Loading list...</p>
-                ) : selectedListDetails.locations.length === 0 ? (
-                  <p className="text-sm text-slate-400">
-                    This list has no locations.
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedListDetails.locations.map((location) => (
-                      <div
-                        key={location.id}
-                        className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1 text-sm"
-                        style={{
-                          border: `1px solid ${
-                            selectedListDetails.color ?? "#8b5cf6"
-                          }`,
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedLocationId(location.id);
-                            setSelectedListId(null);
-                            setSelectedListDetails(null);
-                          }}
-                          className="max-w-[180px] truncate hover:underline"
-                          title={location.name}
-                        >
-                          {location.name}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleRemoveLocationFromList(location.id)
-                          }
-                          className="ml-1 rounded-full px-1 text-red-400 hover:bg-red-950 hover:text-red-200"
-                          aria-label={`Remove ${location.name} from list`}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
+          <Lists
+            lists={lists}
+            selectedListId={selectedListId}
+            selectedListDetails={selectedListDetails}
+            selectedListColor={selectedListColor}
+            isListLoading={isListLoading}
+            onSelectList={handleSelectList}
+            onSelectedListColorChange={setSelectedListColor}
+            onUpdateSelectedListColor={handleUpdateSelectedListColor}
+            onSelectLocationFromList={(locationId) => {
+              setSelectedLocationId(locationId);
+              setSelectedListId(null);
+              setSelectedListDetails(null);
+            }}
+            onRemoveLocationFromList={handleRemoveLocationFromList}
+          />
           <Places
             locations={locations}
             selectedLocationId={selectedLocationId}
