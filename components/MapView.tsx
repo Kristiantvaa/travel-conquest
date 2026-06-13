@@ -170,7 +170,7 @@ export default function MapView({
       <MapContainer
         center={[59.9139, 10.7522]}
         zoom={4}
-        minZoom={2}
+        minZoom={3}
         maxBoundsViscosity={1.0}
         maxBounds={[
           [-70, -180],

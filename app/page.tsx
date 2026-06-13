@@ -22,6 +22,7 @@ import type {
 import Places from "@/components/Places";
 import { Lists } from "@/components/Lists";
 import MapLegend from "@/components/MapLegend";
+import DropdownMenu from "@/components/DropdownMenu";
 
 export default function Home() {
   const [locations, setLocations] = useState<LocationWithLists[]>([]);
@@ -298,13 +299,36 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 px-6 pb-6 pt-2 text-white">
       <div className="rounded-2xl  p-4">
-        <h1 className="mb-2 text-4xl font-bold">Travel Conquest Map</h1>
-        <p className="text-m text-slate-400">
+        <h1 className="mb-2 text-2xl font-bold">Travel Conquest Map</h1>
+        <p className="text-sm text-slate-400">
           Search places, save them, and organize them in conquest lists.
         </p>
       </div>
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr_250px]">
+      <div className="mx-auto max-w-7xl">
+        {" "}
         <section className="relative self-start">
+          <DropdownMenu
+            errorMessage={errorMessage}
+            lists={lists}
+            selectedListId={selectedListId}
+            selectedListDetails={selectedListDetails}
+            selectedListColor={selectedListColor}
+            isListLoading={isListLoading}
+            onSelectList={handleSelectList}
+            onSelectedListColorChange={setSelectedListColor}
+            onUpdateSelectedListColor={handleUpdateSelectedListColor}
+            onSelectLocationFromList={(locationId) => {
+              setSelectedLocationId(locationId);
+              setSelectedListId(null);
+              setSelectedListDetails(null);
+            }}
+            onRemoveLocationFromList={handleRemoveLocationFromList}
+            locations={locations}
+            selectedLocationId={selectedLocationId}
+            onSelectLocation={handleSelectLocation}
+            onStatusChange={handleStatusChange}
+            onDeleteLocation={handleDeleteLocation}
+          />
           <div className="pointer-events-none absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4">
             <div className="pointer-events-auto">
               <LocationSearch
@@ -330,37 +354,6 @@ export default function Home() {
             selectedListColor={selectedListDetails?.color ?? null}
           />
         </section>
-        <aside className="space-y-4">
-          {errorMessage && (
-            <div className="rounded-2xl bg-red-950 p-4 text-sm text-red-200">
-              {errorMessage}
-            </div>
-          )}
-
-          <Lists
-            lists={lists}
-            selectedListId={selectedListId}
-            selectedListDetails={selectedListDetails}
-            selectedListColor={selectedListColor}
-            isListLoading={isListLoading}
-            onSelectList={handleSelectList}
-            onSelectedListColorChange={setSelectedListColor}
-            onUpdateSelectedListColor={handleUpdateSelectedListColor}
-            onSelectLocationFromList={(locationId) => {
-              setSelectedLocationId(locationId);
-              setSelectedListId(null);
-              setSelectedListDetails(null);
-            }}
-            onRemoveLocationFromList={handleRemoveLocationFromList}
-          />
-          <Places
-            locations={locations}
-            selectedLocationId={selectedLocationId}
-            handleSelectLocation={handleSelectLocation}
-            handleStatusChange={handleStatusChange}
-            handleDeleteLocation={handleDeleteLocation}
-          />
-        </aside>
       </div>
     </main>
   );
