@@ -201,7 +201,7 @@ export default function MapView({
 
           return (
             <Marker
-              key={location.id}
+              key={`${location.id}-${location.status}-${isInSelectedList ? selectedListColor : location.listColor}`}
               position={[location.latitude, location.longitude]}
               icon={createMarkerIcon({
                 status: location.status,

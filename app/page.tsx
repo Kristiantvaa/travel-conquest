@@ -141,6 +141,7 @@ export default function Home() {
       setSelectedListDetails(null);
       return;
     }
+
     setSelectedListId(listId);
     setSelectedLocationId(null);
     await reloadSelectedList(listId);
@@ -205,6 +206,10 @@ export default function Home() {
                 lists: location.lists?.filter(
                   (list) => list.id !== selectedListId,
                 ),
+                listColor:
+                  location.lists
+                    ?.filter((list) => list.id !== selectedListId)
+                    ?.at(0)?.color ?? null,
               }
             : location,
         ),
@@ -234,12 +239,22 @@ export default function Home() {
       );
 
       setLocations((currentLocations) =>
-        currentLocations.map((location) => ({
-          ...location,
-          lists: location.lists?.map((list) =>
-            list.id === updatedList.id ? updatedList : list,
-          ),
-        })),
+        currentLocations.map((location) => {
+          const updatedLists =
+            location.lists?.map((list) =>
+              list.id === updatedList.id ? updatedList : list,
+            ) ?? [];
+
+          const isInUpdatedList = updatedLists.some(
+            (list) => list.id === updatedList.id,
+          );
+
+          return {
+            ...location,
+            lists: updatedLists,
+            listColor: isInUpdatedList ? updatedList.color : location.listColor,
+          };
+        }),
       );
 
       setSelectedListDetails((current) =>
@@ -250,6 +265,8 @@ export default function Home() {
             }
           : current,
       );
+
+      setSelectedListColor(updatedList.color ?? "#8b5cf6");
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Could not update list color.",
