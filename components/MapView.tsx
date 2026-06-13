@@ -12,6 +12,35 @@ type MapViewProps = {
   selectedListLocationIds?: string[];
   selectedListColor?: string | null;
 };
+
+function FitBoundsToSelectedList({
+  locations,
+  selectedListId,
+}: {
+  locations: MapLocation[];
+  selectedListId?: string | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!selectedListId) return;
+    if (locations.length === 0) return;
+
+    const bounds = L.latLngBounds(
+      locations.map((location) => [location.latitude, location.longitude]),
+    );
+
+    map.fitBounds(bounds, {
+      padding: [60, 60],
+      maxZoom: 8,
+      animate: true,
+      duration: 1.2,
+    });
+  }, [locations, selectedListId, map]);
+
+  return null;
+}
+
 function createMarkerIcon({
   status,
   color,
@@ -114,6 +143,11 @@ export default function MapView({
         <FlyToSelectedLocation
           locations={visibleLocations}
           selectedLocationId={selectedLocationId}
+        />
+
+        <FitBoundsToSelectedList
+          locations={visibleLocations}
+          selectedListId={selectedListId}
         />
 
         {visibleLocations.map((location) => {
