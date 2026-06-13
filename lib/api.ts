@@ -21,18 +21,44 @@ export async function getLocations(): Promise<Location[]> {
 
   return data ?? [];
 }
-
 export async function getConquestLists(): Promise<ConquestList[]> {
   const { data, error } = await supabase
     .from("conquest_lists")
-    .select("*")
+    .select(
+      `
+      *,
+      conquest_list_locations (
+        location_id,
+        locations (
+          id,
+          status
+        )
+      )
+    `,
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
     throw error;
   }
 
-  return data ?? [];
+  return (data ?? []).map((list) => {
+    const listLocations = list.conquest_list_locations ?? [];
+
+    const totalLocations = listLocations.length;
+
+    const visitedLocations = listLocations.filter(
+      (item) => item.locations?.status === "visited",
+    ).length;
+
+    const { conquest_list_locations, ...conquestList } = list;
+
+    return {
+      ...conquestList,
+      statusProgress:
+        totalLocations > 0 ? visitedLocations / totalLocations : 0,
+    } as ConquestList;
+  });
 }
 
 export async function createConquestList(

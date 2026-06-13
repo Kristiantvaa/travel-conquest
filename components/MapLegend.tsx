@@ -1,4 +1,5 @@
 import { ConquestList } from "@/types";
+import ProgressDot from "./ProgressDot";
 
 type MapLegendProps = {
   lists: ConquestList[];
@@ -46,13 +47,11 @@ export default function MapLegend({
               //   }}
               title={list.name}
             >
-              <span
-                className={`h-3 w-3 shrink-0 rounded-full border ${
-                  isSelected ? "border-white/70" : "border-white/30"
-                }`}
-                style={{ backgroundColor: listColor }}
+              <ProgressDot
+                color={listColor}
+                progress={list.statusProgress ?? 0}
+                isSelected={isSelected}
               />
-
               <span className="min-w-0 flex-1 truncate">{list.name}</span>
             </button>
           );

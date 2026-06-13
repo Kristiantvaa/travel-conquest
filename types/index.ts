@@ -40,6 +40,7 @@ export type NewLocation = {
 export type ConquestList = {
   id: string;
   name: string;
+  statusProgress: number;
   description: string | null;
   color: string | null;
   created_at: string;
