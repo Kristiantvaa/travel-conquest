@@ -259,6 +259,17 @@ export async function getListWithLocations(
   };
 }
 
+export async function deleteLocation(locationId: string): Promise<void> {
+  const { error } = await supabase
+    .from("locations")
+    .delete()
+    .eq("id", locationId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function removeLocationFromList(
   listId: string,
   locationId: string,

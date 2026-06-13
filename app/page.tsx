@@ -10,6 +10,7 @@ import {
   removeLocationFromList,
   updateConquestListColor,
   updateLocationStatus,
+  deleteLocation,
 } from "@/lib/api";
 import type {
   ConquestList,
@@ -17,6 +18,7 @@ import type {
   LocationStatus,
   LocationWithLists,
 } from "@/types";
+import Places from "@/components/Places";
 
 export default function Home() {
   const [locations, setLocations] = useState<LocationWithLists[]>([]);
@@ -64,6 +66,49 @@ export default function Home() {
     }
   }
 
+  function handleSelectLocation(locationId: string) {
+    if (selectedLocationId === locationId) {
+      setSelectedLocationId(null);
+      return;
+    }
+
+    setSelectedListId(null);
+    setSelectedListDetails(null);
+    setSelectedLocationId(locationId);
+  }
+
+  async function handleDeleteLocation(locationId: string) {
+    const location = locations.find((item) => item.id === locationId);
+
+    if (!location) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${location.name}? This action cannot be undone.`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteLocation(locationId);
+
+      setLocations((currentLocations) =>
+        currentLocations.filter((item) => item.id !== locationId),
+      );
+
+      if (selectedLocationId === locationId) {
+        setSelectedLocationId(null);
+      }
+
+      if (selectedListId) {
+        await reloadSelectedList(selectedListId);
+      }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not delete location.",
+      );
+    }
+  }
+
   async function reloadLocationsAndLists() {
     const [locationsData, listsData] = await Promise.all([
       getLocationsWithLists(),
@@ -97,6 +142,7 @@ export default function Home() {
       return;
     }
     setSelectedListId(listId);
+    setSelectedLocationId(null);
     await reloadSelectedList(listId);
   }
 
@@ -122,10 +168,8 @@ export default function Home() {
         ),
       );
 
-      if (selectedListId) {
-        await reloadSelectedList(selectedListId);
-      }
-
+      setSelectedListId(null);
+      setSelectedListDetails(null);
       setSelectedLocationId(locationId);
     } catch (error) {
       setErrorMessage(
@@ -356,7 +400,11 @@ export default function Home() {
                       >
                         <button
                           type="button"
-                          onClick={() => setSelectedLocationId(location.id)}
+                          onClick={() => {
+                            setSelectedLocationId(location.id);
+                            setSelectedListId(null);
+                            setSelectedListDetails(null);
+                          }}
                           className="max-w-[180px] truncate hover:underline"
                           title={location.name}
                         >
@@ -381,99 +429,13 @@ export default function Home() {
             )}
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
-            <h2 className="mb-4 text-lg font-bold">Places</h2>
-
-            {locations.length === 0 ? (
-              <p className="text-sm text-slate-400">
-                No locations yet. Search for one above.
-              </p>
-            ) : (
-              <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
-                {locations.map((location) => (
-                  <div
-                    key={location.id}
-                    className={`rounded-xl px-4 py-3 transition ${
-                      selectedLocationId === location.id
-                        ? "bg-purple-600 text-white"
-                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLocationId(location.id)}
-                      className="w-full text-left"
-                    >
-                      <div className="font-semibold">{location.name}</div>
-                      <div className="text-sm opacity-75">
-                        {location.location_type} · {location.status}
-                      </div>
-
-                      {location.lists && location.lists.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {location.lists.map((list) => (
-                            <span
-                              key={list.id}
-                              className="rounded-full px-2 py-0.5 text-xs text-white"
-                              style={{
-                                backgroundColor: list.color ?? "#8b5cf6",
-                              }}
-                            >
-                              {list.name}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </button>
-
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleStatusChange(location.id, "visited")
-                        }
-                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
-                          location.status === "visited"
-                            ? "bg-emerald-500 text-white"
-                            : "bg-slate-700 text-slate-200 hover:bg-emerald-600"
-                        }`}
-                      >
-                        Visited
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleStatusChange(location.id, "want_to_visit")
-                        }
-                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
-                          location.status === "want_to_visit"
-                            ? "bg-purple-500 text-white"
-                            : "bg-slate-700 text-slate-200 hover:bg-purple-600"
-                        }`}
-                      >
-                        Want
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleStatusChange(location.id, "neutral")
-                        }
-                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
-                          location.status === "neutral"
-                            ? "bg-slate-500 text-white"
-                            : "bg-slate-700 text-slate-200 hover:bg-slate-600"
-                        }`}
-                      >
-                        None
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <Places
+            locations={locations}
+            selectedLocationId={selectedLocationId}
+            handleSelectLocation={handleSelectLocation}
+            handleStatusChange={handleStatusChange}
+            handleDeleteLocation={handleDeleteLocation}
+          />
         </aside>
 
         <section>
