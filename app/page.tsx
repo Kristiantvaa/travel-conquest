@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DynamicMap } from "@/components/DynamicMap";
 import { LocationSearch } from "@/components/LocationSearch";
+
 import {
   getConquestLists,
   getListWithLocations,
@@ -20,6 +21,7 @@ import type {
 } from "@/types";
 import Places from "@/components/Places";
 import { Lists } from "@/components/Lists";
+import MapLegend from "@/components/MapLegend";
 
 export default function Home() {
   const [locations, setLocations] = useState<LocationWithLists[]>([]);
@@ -302,9 +304,9 @@ export default function Home() {
         </p>
       </div>
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr_250px]">
-        <section className="relative">
-          <div className="pointer-events-none absolute left-1/2 top-4 z-[1000] w-full max-w-xl -translate-x-1/2 px-4">
-            <div className="pointer-events-auto rounded-2xl border border-white/20 bg-slate-950/45 p-1 shadow-xl backdrop-blur-md">
+        <section className="relative self-start">
+          <div className="pointer-events-none absolute left-1/2 top-4 z-[1000] w-full max-w-md -translate-x-1/2 px-4">
+            <div className="pointer-events-auto">
               <LocationSearch
                 lists={lists}
                 onLocationCreated={handleLocationCreated}
@@ -313,6 +315,8 @@ export default function Home() {
             </div>
           </div>
 
+          <MapLegend lists={lists} position="bottom-right" />
+
           <DynamicMap
             locations={locations}
             selectedLocationId={selectedLocationId}
@@ -320,7 +324,7 @@ export default function Home() {
             selectedListLocationIds={selectedListLocationIds}
             selectedListColor={selectedListDetails?.color ?? null}
           />
-        </section>{" "}
+        </section>
         <aside className="space-y-4">
           {errorMessage && (
             <div className="rounded-2xl bg-red-950 p-4 text-sm text-red-200">
