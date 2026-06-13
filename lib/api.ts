@@ -208,7 +208,7 @@ export async function getLocationsWithLists(): Promise<LocationWithLists[]> {
   return (data ?? []).map((location) => {
     const lists =
       location.conquest_list_locations
-        ?.map((item) => item.conquest_lists)
+        ?.map((item: any) => item.conquest_lists)
         .filter(Boolean) ?? [];
 
     const listColor = lists[0]?.color ?? null;
@@ -258,7 +258,7 @@ export async function getListWithLocations(
     ...data,
     locations:
       data.conquest_list_locations
-        ?.map((item) => item.locations)
+        ?.map((item: any) => item.locations)
         .filter(Boolean) ?? [],
   };
 }

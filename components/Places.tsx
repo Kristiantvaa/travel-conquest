@@ -70,7 +70,7 @@ export default function Places({
                   </button>
                 </div>
 
-                {location.lists && location.lists.length > 0 && (
+                {/* {location.lists && location.lists.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1">
                     {location.lists.map((list) => (
                       <span
@@ -85,7 +85,7 @@ export default function Places({
                       </span>
                     ))}
                   </div>
-                )}
+                )} */}
 
                 <div className="mt-2 grid grid-cols-2 gap-1.5">
                   <button

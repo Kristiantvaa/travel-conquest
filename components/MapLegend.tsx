@@ -41,9 +41,9 @@ export default function MapLegend({
                   ? "bg-white/15 text-white ring-1"
                   : "text-white/85 hover:bg-white/10 hover:text-white"
               }`}
-              style={{
-                ringColor: isSelected ? listColor : undefined,
-              }}
+              //   style={{
+              //     ringColor: isSelected ? listColor : undefined,
+              //   }}
               title={list.name}
             >
               <span
