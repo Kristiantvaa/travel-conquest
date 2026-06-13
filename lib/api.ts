@@ -1,0 +1,258 @@
+import { supabase } from "@/lib/supabase";
+import type {
+  ConquestList,
+  ConquestListWithLocations,
+  Location,
+  LocationStatus,
+  LocationWithLists,
+  NewConquestList,
+  NewLocation,
+} from "@/types";
+
+export async function getLocations(): Promise<Location[]> {
+  const { data, error } = await supabase
+    .from("locations")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+export async function getConquestLists(): Promise<ConquestList[]> {
+  const { data, error } = await supabase
+    .from("conquest_lists")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+export async function createConquestList(
+  list: NewConquestList,
+): Promise<ConquestList> {
+  const { data, error } = await supabase
+    .from("conquest_lists")
+    .insert({
+      name: list.name,
+      description: list.description ?? null,
+      icon: list.icon ?? "🗺️",
+      color: list.color ?? "#8b5cf6",
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function createLocation(location: NewLocation): Promise<Location> {
+  const { data, error } = await supabase
+    .from("locations")
+    .insert({
+      name: location.name,
+      description: location.description ?? null,
+      location_type: location.location_type,
+      status: location.status,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      country: location.country ?? null,
+      region: location.region ?? null,
+      visited_at:
+        location.status === "visited"
+          ? (location.visited_at ?? new Date().toISOString().slice(0, 10))
+          : null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function addLocationToList(
+  listId: string,
+  locationId: string,
+): Promise<void> {
+  const { error } = await supabase.from("conquest_list_locations").insert({
+    list_id: listId,
+    location_id: locationId,
+  });
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function createLocationAndMaybeAddToList(params: {
+  location: NewLocation;
+  existingListId?: string | null;
+  newListName?: string | null;
+  newListColor?: string | null;
+}): Promise<Location> {
+  const createdLocation = await createLocation(params.location);
+
+  let listId = params.existingListId ?? null;
+
+  const trimmedNewListName = params.newListName?.trim();
+
+  if (trimmedNewListName) {
+    const createdList = await createConquestList({
+      name: trimmedNewListName,
+      icon: "🗺️",
+      color: params.newListColor || "#8b5cf6",
+    });
+
+    listId = createdList.id;
+  }
+
+  if (listId) {
+    await addLocationToList(listId, createdLocation.id);
+  }
+
+  return createdLocation;
+}
+
+export async function updateLocationStatus(
+  locationId: string,
+  status: LocationStatus,
+): Promise<Location> {
+  const { data, error } = await supabase
+    .from("locations")
+    .update({
+      status,
+      visited_at:
+        status === "visited" ? new Date().toISOString().slice(0, 10) : null,
+    })
+    .eq("id", locationId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function getLocationsWithLists(): Promise<LocationWithLists[]> {
+  const { data, error } = await supabase
+    .from("locations")
+    .select(
+      `
+      *,
+      conquest_list_locations (
+        conquest_lists (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          created_at,
+          updated_at
+        )
+      )
+    `,
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((location) => ({
+    ...location,
+    lists:
+      location.conquest_list_locations
+        ?.map((item) => item.conquest_lists)
+        .filter(Boolean) ?? [],
+  }));
+}
+
+export async function getListWithLocations(
+  listId: string,
+): Promise<ConquestListWithLocations> {
+  const { data, error } = await supabase
+    .from("conquest_lists")
+    .select(
+      `
+      *,
+      conquest_list_locations (
+        locations (
+          id,
+          name,
+          description,
+          location_type,
+          status,
+          latitude,
+          longitude,
+          country,
+          region,
+          visited_at,
+          created_at,
+          updated_at
+        )
+      )
+    `,
+    )
+    .eq("id", listId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    ...data,
+    locations:
+      data.conquest_list_locations
+        ?.map((item) => item.locations)
+        .filter(Boolean) ?? [],
+  };
+}
+
+export async function removeLocationFromList(
+  listId: string,
+  locationId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("conquest_list_locations")
+    .delete()
+    .eq("list_id", listId)
+    .eq("location_id", locationId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function updateConquestListColor(
+  listId: string,
+  color: string,
+): Promise<ConquestList> {
+  const { data, error } = await supabase
+    .from("conquest_lists")
+    .update({ color })
+    .eq("id", listId)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}

@@ -1,224 +1,61 @@
-// "use client";
-
-// import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-// import L from "leaflet";
-
-// type LocationStatus = "visited" | "want_to_visit" | "neutral";
-
-// export type MapLocation = {
-//   id: string;
-//   name: string;
-//   description?: string | null;
-//   status: LocationStatus;
-//   location_type: string;
-//   latitude: number;
-//   longitude: number;
-//   country?: string | null;
-//   region?: string | null;
-// };
-
-// type MapViewProps = {
-//   locations: MapLocation[];
-// };
-
-// const visitedIcon = L.divIcon({
-//   className: "",
-//   html: `
-//     <div style="
-//       width: 28px;
-//       height: 28px;
-//       border-radius: 9999px;
-//       background: #22c55e;
-//       border: 3px solid white;
-//       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-//       display: flex;
-//       align-items: center;
-//       justify-content: center;
-//       font-size: 14px;
-//     ">
-//       ✓
-//     </div>
-//   `,
-//   iconSize: [28, 28],
-//   iconAnchor: [14, 14],
-// });
-
-// const wishlistIcon = L.divIcon({
-//   className: "",
-//   html: `
-//     <div style="
-//       width: 28px;
-//       height: 28px;
-//       border-radius: 9999px;
-//       background: #8b5cf6;
-//       border: 3px solid white;
-//       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-//       display: flex;
-//       align-items: center;
-//       justify-content: center;
-//       font-size: 14px;
-//     ">
-//       ★
-//     </div>
-//   `,
-//   iconSize: [28, 28],
-//   iconAnchor: [14, 14],
-// });
-
-// const neutralIcon = L.divIcon({
-//   className: "",
-//   html: `
-//     <div style="
-//       width: 24px;
-//       height: 24px;
-//       border-radius: 9999px;
-//       background: #64748b;
-//       border: 3px solid white;
-//       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-//     "></div>
-//   `,
-//   iconSize: [24, 24],
-//   iconAnchor: [12, 12],
-// });
-
-// function getIcon(status: LocationStatus) {
-//   if (status === "visited") return visitedIcon;
-//   if (status === "want_to_visit") return wishlistIcon;
-//   return neutralIcon;
-// }
-
-// export default function MapView({ locations }: MapViewProps) {
-//   const defaultCenter: [number, number] = [59.9139, 10.7522];
-//   const maxBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
-
-//   return (
-//     <div className="h-[400px] w-full overflow-hidden rounded-2xl border border-slate-200 shadow">
-//       <MapContainer
-//         center={defaultCenter}
-//         zoom={4}
-//         minZoom={2}
-//         scrollWheelZoom
-//         className="h-full w-full"
-//         maxBounds={maxBounds}
-//         maxBoundsViscosity={1.0}
-//       >
-//         <TileLayer
-//           noWrap={true}
-//           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-//           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//         />
-
-//         {locations.map((location) => (
-//           <Marker
-//             key={location.id}
-//             position={[location.latitude, location.longitude]}
-//             icon={getIcon(location.status)}
-//           >
-//             <Popup>
-//               <div className="space-y-1">
-//                 <p className="font-semibold">{location.name}</p>
-//                 <p>Status: {location.status}</p>
-//                 <p>Type: {location.location_type}</p>
-
-//                 {location.country && <p>Land: {location.country}</p>}
-//                 {location.description && <p>{location.description}</p>}
-//               </div>
-//             </Popup>
-//           </Marker>
-//         ))}
-//       </MapContainer>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useEffect } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
-
-type MapLocation = {
-  id: string;
-  name: string;
-  description?: string;
-  status: "visited" | "want_to_visit" | "neutral";
-  location_type: string;
-  latitude: number;
-  longitude: number;
-  country?: string;
-  region?: string;
-};
+import type { Location as MapLocation } from "@/types";
 
 type MapViewProps = {
   locations: MapLocation[];
   selectedLocationId?: string | null;
+  selectedListId?: string | null;
 };
 
-const visitedIcon = L.divIcon({
-  className: "",
-  html: `
-    <div style="
-      width: 28px;
-      height: 28px;
-      border-radius: 9999px;
-      background: #22c55e;
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    ">
-      ✓
-    </div>
-  `,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-});
+function createMarkerIcon({
+  status,
+  color,
+  isInSelectedList,
+}: {
+  status: MapLocation["status"];
+  color?: string | null;
+  isInSelectedList?: boolean;
+}) {
+  const fallbackColor =
+    status === "visited"
+      ? "#22c55e"
+      : status === "want_to_visit"
+        ? "#8b5cf6"
+        : "#64748b";
 
-const wishlistIcon = L.divIcon({
-  className: "",
-  html: `
-    <div style="
-      width: 28px;
-      height: 28px;
-      border-radius: 9999px;
-      background: #8b5cf6;
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    ">
-      ★
-    </div>
-  `,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-});
+  const markerColor = color || fallbackColor;
+  const symbol =
+    status === "visited" ? "✓" : status === "want_to_visit" ? "★" : "";
 
-const neutralIcon = L.divIcon({
-  className: "",
-  html: `
-    <div style="
-      width: 24px;
-      height: 24px;
-      border-radius: 9999px;
-      background: #64748b;
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-    "></div>
-  `,
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
-
-function getIcon(status: MapLocation["status"]) {
-  if (status === "visited") return visitedIcon;
-  if (status === "want_to_visit") return wishlistIcon;
-  return neutralIcon;
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width: ${isInSelectedList ? "34px" : "28px"};
+        height: ${isInSelectedList ? "34px" : "28px"};
+        border-radius: 9999px;
+        background: ${markerColor};
+        border: ${isInSelectedList ? "4px" : "3px"} solid white;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+      ">
+        ${symbol}
+      </div>
+    `,
+    iconSize: isInSelectedList ? [34, 34] : [28, 28],
+    iconAnchor: isInSelectedList ? [17, 17] : [14, 14],
+  });
 }
 
+// Få kartet til å zoome inn på den valgt lokasjon i Frontend
 function FlyToSelectedLocation({
   locations,
   selectedLocationId,
@@ -250,6 +87,7 @@ export type { MapLocation };
 export default function MapView({
   locations,
   selectedLocationId,
+  selectedListId,
 }: MapViewProps) {
   return (
     <div className="h-[600px] w-full overflow-hidden rounded-2xl border border-slate-700 shadow">
@@ -273,7 +111,18 @@ export default function MapView({
           <Marker
             key={location.id}
             position={[location.latitude, location.longitude]}
-            icon={getIcon(location.status)}
+            icon={createMarkerIcon({
+              status: location.status,
+              color:
+                selectedListId &&
+                location.lists?.some((list) => list.id === selectedListId)
+                  ? location.lists.find((list) => list.id === selectedListId)
+                      ?.color
+                  : null,
+              isInSelectedList:
+                !!selectedListId &&
+                !!location.lists?.some((list) => list.id === selectedListId),
+            })}
           >
             <Popup>
               <div>
@@ -292,6 +141,12 @@ export default function MapView({
                   <>
                     <br />
                     <span>{location.description}</span>
+                  </>
+                )}
+                {location.lists && location.lists.length > 0 && (
+                  <>
+                    <br />
+                    Lists: {location.lists.map((list) => list.name).join(", ")}
                   </>
                 )}
               </div>

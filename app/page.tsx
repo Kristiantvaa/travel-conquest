@@ -1,272 +1,469 @@
-// import { DynamicMap } from "@/components/DynamicMap";
-// import Link from "next/link";
-
-// const testLocations = [
-//   {
-//     id: "1",
-//     name: "Oslo",
-//     description: "Besøkt hovedstad",
-//     status: "visited" as const,
-//     location_type: "city",
-//     latitude: 59.9139,
-//     longitude: 10.7522,
-//     country: "Norway",
-//     region: "Oslo",
-//   },
-//   {
-//     id: "2",
-//     name: "Trondheim",
-//     description: "Studiebyen",
-//     status: "visited" as const,
-//     location_type: "city",
-//     latitude: 63.4305,
-//     longitude: 10.3951,
-//     country: "Norway",
-//     region: "Trøndelag",
-//   },
-//   {
-//     id: "3",
-//     name: "Tokyo",
-//     description: "Drømmedestinasjon",
-//     status: "want_to_visit" as const,
-//     location_type: "city",
-//     latitude: 35.6762,
-//     longitude: 139.6503,
-//     country: "Japan",
-//     region: "Tokyo",
-//   },
-//   {
-//     id: "4",
-//     name: "Mont Blanc",
-//     description: "Fjellmål",
-//     status: "want_to_visit" as const,
-//     location_type: "mountain",
-//     latitude: 45.8326,
-//     longitude: 6.8652,
-//     country: "France",
-//     region: "Alps",
-//   },
-// ];
-
-// export default function Home() {
-//   return (
-//     <main className="min-h-screen bg-slate-950 p-6 text-white">
-//       <div className="mx-auto max-w-7xl space-y-6">
-//         <div>
-//           <h1 className="text-3xl font-bold">Travel Conquest Map</h1>
-//           <p className="text-slate-300">
-//             Grønne markører er besøkt. Lilla markører er ønskeliste.
-//           </p>
-//           <Link
-//             href="/about"
-//             className="mt-4 rounded-md bg-blue-500 text-white hover:bg-blue-600"
-//           >
-//             Go to About Page
-//           </Link>
-//         </div>
-
-//         <DynamicMap locations={testLocations} />
-//       </div>
-//     </main>
-//   );
-// }
-
-// "use client";
-
-// import { useState } from "react";
-// import { DynamicMap } from "@/components/DynamicMap";
-// import type { MapLocation } from "@/components/MapView";
-
-// const testLocations: MapLocation[] = [
-//   {
-//     id: "1",
-//     name: "Oslo",
-//     description: "Besøkt hovedstad",
-//     status: "visited",
-//     location_type: "city",
-//     latitude: 59.9139,
-//     longitude: 10.7522,
-//     country: "Norway",
-//     region: "Oslo",
-//   },
-//   {
-//     id: "2",
-//     name: "Trondheim",
-//     description: "Studiebyen",
-//     status: "visited",
-//     location_type: "city",
-//     latitude: 63.4305,
-//     longitude: 10.3951,
-//     country: "Norway",
-//     region: "Trøndelag",
-//   },
-//   {
-//     id: "3",
-//     name: "Tokyo",
-//     description: "Drømmedestinasjon",
-//     status: "want_to_visit",
-//     location_type: "city",
-//     latitude: 35.6762,
-//     longitude: 139.6503,
-//     country: "Japan",
-//     region: "Tokyo",
-//   },
-//   {
-//     id: "4",
-//     name: "Mont Blanc",
-//     description: "Fjellmål",
-//     status: "want_to_visit",
-//     location_type: "mountain",
-//     latitude: 45.8326,
-//     longitude: 6.8652,
-//     country: "France",
-//     region: "Alps",
-//   },
-// ];
-
-// export default function Home() {
-//   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
-//     null,
-//   );
-
-//   return (
-//     <main className="min-h-screen bg-slate-950 p-6 text-white">
-//       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_1fr]">
-//         <aside className="rounded-2xl bg-slate-900 p-4">
-//           <h1 className="mb-4 text-2xl font-bold">Travel Conquest Map</h1>
-
-//           <div className="space-y-2">
-//             {testLocations.map((location) => (
-//               <button
-//                 key={location.id}
-//                 type="button"
-//                 onClick={() => setSelectedLocationId(location.id)}
-//                 className={`w-full rounded-xl px-4 py-3 text-left transition ${
-//                   selectedLocationId === location.id
-//                     ? "bg-purple-600 text-white"
-//                     : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-//                 }`}
-//               >
-//                 <div className="font-semibold">{location.name}</div>
-//                 <div className="text-sm opacity-75">
-//                   {location.location_type} · {location.status}
-//                 </div>
-//               </button>
-//             ))}
-//           </div>
-//         </aside>
-
-//         <section>
-//           <DynamicMap
-//             locations={testLocations}
-//             selectedLocationId={selectedLocationId}
-//           />
-//         </section>
-//       </div>
-//     </main>
-//   );
-// }
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DynamicMap } from "@/components/DynamicMap";
 import { LocationSearch } from "@/components/LocationSearch";
-import type { MapLocation } from "@/components/MapView";
-
-const initialLocations: MapLocation[] = [
-  {
-    id: "1",
-    name: "Oslo",
-    description: "Besøkt hovedstad",
-    status: "visited",
-    location_type: "city",
-    latitude: 59.9139,
-    longitude: 10.7522,
-    country: "Norway",
-    region: "Oslo",
-  },
-  {
-    id: "2",
-    name: "Trondheim",
-    description: "Studiebyen",
-    status: "visited",
-    location_type: "city",
-    latitude: 63.4305,
-    longitude: 10.3951,
-    country: "Norway",
-    region: "Trøndelag",
-  },
-  {
-    id: "3",
-    name: "Tokyo",
-    description: "Drømmedestinasjon",
-    status: "want_to_visit",
-    location_type: "city",
-    latitude: 35.6762,
-    longitude: 139.6503,
-    country: "Japan",
-    region: "Tokyo",
-  },
-  {
-    id: "4",
-    name: "Mont Blanc",
-    description: "Fjellmål",
-    status: "want_to_visit",
-    location_type: "mountain",
-    latitude: 45.8326,
-    longitude: 6.8652,
-    country: "France",
-    region: "Alps",
-  },
-];
+import {
+  getConquestLists,
+  getListWithLocations,
+  getLocationsWithLists,
+  removeLocationFromList,
+  updateConquestListColor,
+  updateLocationStatus,
+} from "@/lib/api";
+import type {
+  ConquestList,
+  ConquestListWithLocations,
+  LocationStatus,
+  LocationWithLists,
+} from "@/types";
 
 export default function Home() {
-  const [locations, setLocations] = useState<MapLocation[]>(initialLocations);
+  const [locations, setLocations] = useState<LocationWithLists[]>([]);
+  const [lists, setLists] = useState<ConquestList[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null,
   );
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListDetails, setSelectedListDetails] =
+    useState<ConquestListWithLocations | null>(null);
+  const [selectedListColor, setSelectedListColor] = useState("#8b5cf6");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isListLoading, setIsListLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  function handleAddLocation(location: MapLocation) {
-    setLocations((currentLocations) => [location, ...currentLocations]);
-    setSelectedLocationId(location.id);
+  const selectedList = useMemo(
+    () => lists.find((list) => list.id === selectedListId) ?? null,
+    [lists, selectedListId],
+  );
+
+  async function loadInitialData() {
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const [locationsData, listsData] = await Promise.all([
+        getLocationsWithLists(),
+        getConquestLists(),
+      ]);
+
+      setLocations(locationsData);
+      setLists(listsData);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not load data from Supabase.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function reloadLocationsAndLists() {
+    const [locationsData, listsData] = await Promise.all([
+      getLocationsWithLists(),
+      getConquestLists(),
+    ]);
+
+    setLocations(locationsData);
+    setLists(listsData);
+  }
+
+  async function reloadSelectedList(listId: string) {
+    setIsListLoading(true);
+
+    try {
+      const data = await getListWithLocations(listId);
+      setSelectedListDetails(data);
+      setSelectedListColor(data.color ?? "#8b5cf6");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not load list.",
+      );
+    } finally {
+      setIsListLoading(false);
+    }
+  }
+
+  async function handleSelectList(listId: string) {
+    setSelectedListId(listId);
+    await reloadSelectedList(listId);
+  }
+
+  async function handleLocationCreated() {
+    await reloadLocationsAndLists();
+  }
+
+  async function handleStatusChange(
+    locationId: string,
+    status: LocationStatus,
+  ) {
+    try {
+      const updatedLocation = await updateLocationStatus(locationId, status);
+
+      setLocations((currentLocations) =>
+        currentLocations.map((location) =>
+          location.id === locationId
+            ? {
+                ...location,
+                ...updatedLocation,
+              }
+            : location,
+        ),
+      );
+
+      if (selectedListId) {
+        await reloadSelectedList(selectedListId);
+      }
+
+      setSelectedLocationId(locationId);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not update location status.",
+      );
+    }
+  }
+
+  async function handleRemoveLocationFromList(locationId: string) {
+    if (!selectedListId) return;
+
+    try {
+      await removeLocationFromList(selectedListId, locationId);
+
+      setSelectedListDetails((current) =>
+        current
+          ? {
+              ...current,
+              locations: current.locations.filter(
+                (location) => location.id !== locationId,
+              ),
+            }
+          : current,
+      );
+
+      setLocations((currentLocations) =>
+        currentLocations.map((location) =>
+          location.id === locationId
+            ? {
+                ...location,
+                lists: location.lists?.filter(
+                  (list) => list.id !== selectedListId,
+                ),
+              }
+            : location,
+        ),
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not remove location from list.",
+      );
+    }
+  }
+
+  async function handleUpdateSelectedListColor() {
+    if (!selectedListId) return;
+
+    try {
+      const updatedList = await updateConquestListColor(
+        selectedListId,
+        selectedListColor,
+      );
+
+      setLists((currentLists) =>
+        currentLists.map((list) =>
+          list.id === updatedList.id ? updatedList : list,
+        ),
+      );
+
+      setLocations((currentLocations) =>
+        currentLocations.map((location) => ({
+          ...location,
+          lists: location.lists?.map((list) =>
+            list.id === updatedList.id ? updatedList : list,
+          ),
+        })),
+      );
+
+      setSelectedListDetails((current) =>
+        current
+          ? {
+              ...current,
+              color: updatedList.color,
+            }
+          : current,
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not update list color.",
+      );
+    }
+  }
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedList) {
+      setSelectedListColor(selectedList.color ?? "#8b5cf6");
+    }
+  }, [selectedList]);
+
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        Loading travel map...
+      </main>
+    );
   }
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[360px_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[420px_1fr]">
         <aside className="space-y-4">
           <div className="rounded-2xl bg-slate-900 p-4">
             <h1 className="mb-2 text-2xl font-bold">Travel Conquest Map</h1>
             <p className="text-sm text-slate-400">
-              Green = visited. Purple = want to visit. Grey = nothing.
+              Search places, save them, and organize them in conquest lists.
             </p>
           </div>
 
-          <LocationSearch onAddLocation={handleAddLocation} />
+          {errorMessage && (
+            <div className="rounded-2xl bg-red-950 p-4 text-sm text-red-200">
+              {errorMessage}
+            </div>
+          )}
+
+          <LocationSearch
+            lists={lists}
+            onLocationCreated={handleLocationCreated}
+            onListCreated={reloadLocationsAndLists}
+          />
+
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <h2 className="mb-4 text-lg font-bold">Lists</h2>
+
+            {lists.length === 0 ? (
+              <p className="text-sm text-slate-400">
+                No lists yet. Create one when saving a location.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {lists.map((list) => (
+                  <button
+                    key={list.id}
+                    type="button"
+                    onClick={() => handleSelectList(list.id)}
+                    className={`w-full rounded-xl px-4 py-3 text-left transition ${
+                      selectedListId === list.id
+                        ? "bg-slate-700 text-white ring-2"
+                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                    }`}
+                    style={{
+                      borderLeft: `8px solid ${list.color ?? "#8b5cf6"}`,
+                      ringColor: list.color ?? "#8b5cf6",
+                    }}
+                  >
+                    <div className="font-semibold">
+                      {list.icon ?? "🗺️"} {list.name}
+                    </div>
+                    {list.description && (
+                      <div className="text-sm text-slate-400">
+                        {list.description}
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {selectedListDetails && (
+              <div className="mt-4 space-y-4 rounded-2xl border border-slate-700 bg-slate-950 p-3">
+                <div>
+                  <h3 className="font-bold">
+                    {selectedListDetails.icon ?? "🗺️"}{" "}
+                    {selectedListDetails.name}
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    {selectedListDetails.locations.length} locations
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">
+                    List color
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={selectedListColor}
+                      onChange={(event) =>
+                        setSelectedListColor(event.target.value)
+                      }
+                      className="h-10 w-14 cursor-pointer rounded-lg border border-slate-700 bg-slate-900"
+                    />
+
+                    <input
+                      value={selectedListColor}
+                      onChange={(event) =>
+                        setSelectedListColor(event.target.value)
+                      }
+                      className="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={handleUpdateSelectedListColor}
+                      className="rounded-xl bg-purple-600 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-500"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                {isListLoading ? (
+                  <p className="text-sm text-slate-400">Loading list...</p>
+                ) : selectedListDetails.locations.length === 0 ? (
+                  <p className="text-sm text-slate-400">
+                    This list has no locations.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedListDetails.locations.map((location) => (
+                      <div
+                        key={location.id}
+                        className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1 text-sm"
+                        style={{
+                          border: `1px solid ${
+                            selectedListDetails.color ?? "#8b5cf6"
+                          }`,
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLocationId(location.id)}
+                          className="max-w-[180px] truncate hover:underline"
+                          title={location.name}
+                        >
+                          {location.name}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRemoveLocationFromList(location.id)
+                          }
+                          className="ml-1 rounded-full px-1 text-red-400 hover:bg-red-950 hover:text-red-200"
+                          aria-label={`Remove ${location.name} from list`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="rounded-2xl bg-slate-900 p-4">
             <h2 className="mb-4 text-lg font-bold">Places</h2>
 
-            <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
-              {locations.map((location) => (
-                <button
-                  key={location.id}
-                  type="button"
-                  onClick={() => setSelectedLocationId(location.id)}
-                  className={`w-full rounded-xl px-4 py-3 text-left transition ${
-                    selectedLocationId === location.id
-                      ? "bg-purple-600 text-white"
-                      : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-                  }`}
-                >
-                  <div className="font-semibold">{location.name}</div>
-                  <div className="text-sm opacity-75">
-                    {location.location_type} · {location.status}
+            {locations.length === 0 ? (
+              <p className="text-sm text-slate-400">
+                No locations yet. Search for one above.
+              </p>
+            ) : (
+              <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                {locations.map((location) => (
+                  <div
+                    key={location.id}
+                    className={`rounded-xl px-4 py-3 transition ${
+                      selectedLocationId === location.id
+                        ? "bg-purple-600 text-white"
+                        : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLocationId(location.id)}
+                      className="w-full text-left"
+                    >
+                      <div className="font-semibold">{location.name}</div>
+                      <div className="text-sm opacity-75">
+                        {location.location_type} · {location.status}
+                      </div>
+
+                      {location.lists && location.lists.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {location.lists.map((list) => (
+                            <span
+                              key={list.id}
+                              className="rounded-full px-2 py-0.5 text-xs text-white"
+                              style={{
+                                backgroundColor: list.color ?? "#8b5cf6",
+                              }}
+                            >
+                              {list.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatusChange(location.id, "visited")
+                        }
+                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
+                          location.status === "visited"
+                            ? "bg-emerald-500 text-white"
+                            : "bg-slate-700 text-slate-200 hover:bg-emerald-600"
+                        }`}
+                      >
+                        Visited
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatusChange(location.id, "want_to_visit")
+                        }
+                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
+                          location.status === "want_to_visit"
+                            ? "bg-purple-500 text-white"
+                            : "bg-slate-700 text-slate-200 hover:bg-purple-600"
+                        }`}
+                      >
+                        Want
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatusChange(location.id, "neutral")
+                        }
+                        className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
+                          location.status === "neutral"
+                            ? "bg-slate-500 text-white"
+                            : "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                        }`}
+                      >
+                        None
+                      </button>
+                    </div>
                   </div>
-                </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </aside>
 
@@ -274,6 +471,7 @@ export default function Home() {
           <DynamicMap
             locations={locations}
             selectedLocationId={selectedLocationId}
+            selectedListId={selectedListId}
           />
         </section>
       </div>
