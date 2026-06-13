@@ -56,23 +56,58 @@ export async function createConquestList(
   return data;
 }
 
-export async function createLocation(location: NewLocation): Promise<Location> {
+//   Endre dette til at man enten oppretter en location hvis det ikke finnes i databasen, eller oppdaterer eksisterende location hvis den allerede finnes
+export async function createOrUpdateLocation(
+  location: NewLocation,
+): Promise<Location> {
+  const latitude = Number(location.latitude.toFixed(4));
+  const longitude = Number(location.longitude.toFixed(4));
+
+  const { data: existingLocation, error: findError } = await supabase
+    .from("locations")
+    .select("*")
+    .eq("name", location.name)
+    .eq("latitude", latitude)
+    .eq("longitude", longitude)
+    .maybeSingle();
+
+  if (findError) {
+    throw findError;
+  }
+
+  const locationPayload = {
+    name: location.name,
+    description: location.description ?? null,
+    location_type: location.location_type,
+    status: location.status,
+    latitude,
+    longitude,
+    country: location.country ?? null,
+    region: location.region ?? null,
+    visited_at:
+      location.status === "visited"
+        ? (location.visited_at ?? new Date().toISOString().slice(0, 10))
+        : null,
+  };
+
+  if (existingLocation) {
+    const { data, error } = await supabase
+      .from("locations")
+      .update(locationPayload)
+      .eq("id", existingLocation.id)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
   const { data, error } = await supabase
     .from("locations")
-    .insert({
-      name: location.name,
-      description: location.description ?? null,
-      location_type: location.location_type,
-      status: location.status,
-      latitude: location.latitude,
-      longitude: location.longitude,
-      country: location.country ?? null,
-      region: location.region ?? null,
-      visited_at:
-        location.status === "visited"
-          ? (location.visited_at ?? new Date().toISOString().slice(0, 10))
-          : null,
-    })
+    .insert(locationPayload)
     .select()
     .single();
 
@@ -103,7 +138,7 @@ export async function createLocationAndMaybeAddToList(params: {
   newListName?: string | null;
   newListColor?: string | null;
 }): Promise<Location> {
-  const createdLocation = await createLocation(params.location);
+  const createdLocation = await createOrUpdateLocation(params.location);
 
   let listId = params.existingListId ?? null;
 
