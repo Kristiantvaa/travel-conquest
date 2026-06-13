@@ -43,6 +43,8 @@ export type ConquestList = {
   statusProgress: number;
   description: string | null;
   color: string | null;
+  duration?: number | null;
+  length?: number | null;
   created_at: string;
   updated_at: string;
 };

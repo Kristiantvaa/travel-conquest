@@ -247,6 +247,38 @@ export async function getLocationsWithLists(): Promise<LocationWithLists[]> {
   });
 }
 
+export async function updateConquestList({
+  listId,
+  name,
+  description,
+  durationDays,
+  lengthKm,
+}: {
+  listId: string;
+  name: string;
+  description: string;
+  durationDays: number | null;
+  lengthKm: number | null;
+}) {
+  const { data, error } = await supabase
+    .from("conquest_lists")
+    .update({
+      name,
+      description,
+      duration: durationDays,
+      length: lengthKm,
+    })
+    .eq("id", listId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
 export async function getListWithLocations(
   listId: string,
 ): Promise<ConquestListWithLocations> {

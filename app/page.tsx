@@ -343,7 +343,20 @@ export default function Home() {
             lists={lists}
             selectedListId={selectedListId}
             onSelectList={handleSelectList}
+            onClearSelectedList={() => {
+              setSelectedListId(null);
+              setSelectedListDetails(null);
+            }}
             position="bottom-right"
+            onListUpdated={(updatedList) => {
+              setLists((currentLists) =>
+                currentLists.map((list) =>
+                  list.id === updatedList.id
+                    ? { ...list, ...updatedList }
+                    : list,
+                ),
+              );
+            }}
           />
 
           <DynamicMap
