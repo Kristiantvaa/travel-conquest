@@ -9,8 +9,9 @@ type MapViewProps = {
   locations: MapLocation[];
   selectedLocationId?: string | null;
   selectedListId?: string | null;
+  selectedListLocationIds?: string[];
+  selectedListColor?: string | null;
 };
-
 function createMarkerIcon({
   status,
   color,
@@ -88,7 +89,15 @@ export default function MapView({
   locations,
   selectedLocationId,
   selectedListId,
+  selectedListLocationIds = [],
+  selectedListColor,
 }: MapViewProps) {
+  const visibleLocations = selectedListId
+    ? locations.filter((location) =>
+        selectedListLocationIds.includes(location.id),
+      )
+    : locations;
+
   return (
     <div className="h-[600px] w-full overflow-hidden rounded-2xl border border-slate-700 shadow">
       <MapContainer
@@ -103,56 +112,48 @@ export default function MapView({
         />
 
         <FlyToSelectedLocation
-          locations={locations}
+          locations={visibleLocations}
           selectedLocationId={selectedLocationId}
         />
 
-        {locations.map((location) => (
-          <Marker
-            key={location.id}
-            position={[location.latitude, location.longitude]}
-            icon={createMarkerIcon({
-              status: location.status,
-              color:
-                selectedListId &&
-                location.lists?.some((list) => list.id === selectedListId)
-                  ? location.lists.find((list) => list.id === selectedListId)
-                      ?.color
-                  : null,
-              isInSelectedList:
-                !!selectedListId &&
-                !!location.lists?.some((list) => list.id === selectedListId),
-            })}
-          >
-            <Popup>
-              <div>
-                <strong>{location.name}</strong>
-                <br />
-                Status: {location.status}
-                <br />
-                Type: {location.location_type}
-                {location.country && (
-                  <>
-                    <br />
-                    Land: {location.country}
-                  </>
-                )}
-                {location.description && (
-                  <>
-                    <br />
-                    <span>{location.description}</span>
-                  </>
-                )}
-                {location.lists && location.lists.length > 0 && (
-                  <>
-                    <br />
-                    Lists: {location.lists.map((list) => list.name).join(", ")}
-                  </>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {visibleLocations.map((location) => {
+          const isInSelectedList =
+            !!selectedListId && selectedListLocationIds.includes(location.id);
+
+          return (
+            <Marker
+              key={location.id}
+              position={[location.latitude, location.longitude]}
+              icon={createMarkerIcon({
+                status: location.status,
+                color: isInSelectedList ? selectedListColor : null,
+                isInSelectedList,
+              })}
+            >
+              <Popup>
+                <div>
+                  <strong>{location.name}</strong>
+                  <br />
+                  Status: {location.status}
+                  <br />
+                  Type: {location.location_type}
+                  {location.country && (
+                    <>
+                      <br />
+                      Land: {location.country}
+                    </>
+                  )}
+                  {location.description && (
+                    <>
+                      <br />
+                      <span>{location.description}</span>
+                    </>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
   );

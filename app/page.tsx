@@ -27,6 +27,10 @@ export default function Home() {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [selectedListDetails, setSelectedListDetails] =
     useState<ConquestListWithLocations | null>(null);
+
+  const selectedListLocationIds =
+    selectedListDetails?.locations.map((location) => location.id) ?? [];
+
   const [selectedListColor, setSelectedListColor] = useState("#8b5cf6");
   const [isLoading, setIsLoading] = useState(true);
   const [isListLoading, setIsListLoading] = useState(false);
@@ -477,6 +481,8 @@ export default function Home() {
             locations={locations}
             selectedLocationId={selectedLocationId}
             selectedListId={selectedListId}
+            selectedListLocationIds={selectedListLocationIds}
+            selectedListColor={selectedListDetails?.color ?? null}
           />
         </section>
       </div>

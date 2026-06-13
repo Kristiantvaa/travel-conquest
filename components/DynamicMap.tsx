@@ -16,18 +16,24 @@ type DynamicMapProps = {
   locations: MapLocation[];
   selectedLocationId?: string | null;
   selectedListId?: string | null;
+  selectedListLocationIds?: string[];
+  selectedListColor?: string | null;
 };
 
 export function DynamicMap({
   locations,
   selectedLocationId,
   selectedListId,
+  selectedListLocationIds,
+  selectedListColor,
 }: DynamicMapProps) {
   return (
     <MapView
       locations={locations}
       selectedLocationId={selectedLocationId}
       selectedListId={selectedListId}
+      selectedListLocationIds={selectedListLocationIds}
+      selectedListColor={selectedListColor}
     />
   );
 }
