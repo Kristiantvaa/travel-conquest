@@ -45,10 +45,12 @@ function createMarkerIcon({
   status,
   color,
   isInSelectedList,
+  name,
 }: {
   status: MapLocation["status"];
   color?: string | null;
   isInSelectedList?: boolean;
+  name: string;
 }) {
   const fallbackColor =
     status === "visited"
@@ -76,6 +78,7 @@ function createMarkerIcon({
 
   const symbol =
     status === "visited" ? "✓" : status === "want_to_visit" ? "★" : "";
+
   const size =
     isInSelectedList && status === "visited" ? 40 : isInSelectedList ? 34 : 28;
 
@@ -98,28 +101,59 @@ function createMarkerIcon({
         ? "15px"
         : "14px";
 
+  const safeName = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
   return L.divIcon({
     className: "",
     html: `
       <div style="
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 9999px;
-        background: ${markerColor};
-        border: ${borderWidth}px solid ${borderColor};
-        box-shadow: ${boxShadow};
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: ${fontSize};
-        color: ${symbolColor};
+        gap: 3px;
+        transform: translateY(-${size / 2}px);
+        pointer-events: auto;
       ">
-        ${symbol}
+        <div style="
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 9999px;
+          background: ${markerColor};
+          border: ${borderWidth}px solid ${borderColor};
+          box-shadow: ${boxShadow};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          font-size: ${fontSize};
+          color: ${symbolColor};
+        ">
+          ${symbol}
+        </div>
+
+        <div style="
+          max-width: 120px;
+          padding: 2px 6px;
+          border-radius: 9999px;
+          background: rgba(30, 41, 59, 0.62);
+          border: 1px solid rgba(255, 255, 255, 0.14);          
+          box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+          backdrop-filter: blur(6px);
+          color: white;
+          font-size: 11px;
+          font-weight: 700;
+          line-height: 1.1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-align: center;
+        ">
+          ${safeName}
+        </div>
       </div>
     `,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconSize: [120, size + 24],
+    iconAnchor: [60, size / 2],
   });
 }
 
@@ -209,6 +243,7 @@ export default function MapView({
                   ? selectedListColor
                   : location.listColor,
                 isInSelectedList,
+                name: location.name,
               })}
             >
               <Popup>
