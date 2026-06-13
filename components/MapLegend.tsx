@@ -2,11 +2,15 @@ import { ConquestList } from "@/types";
 
 type MapLegendProps = {
   lists: ConquestList[];
+  selectedListId: string | null;
+  onSelectList: (listId: string) => void;
   position?: "top-right" | "bottom-right";
 };
 
 export default function MapLegend({
   lists,
+  selectedListId,
+  onSelectList,
   position = "bottom-right",
 }: MapLegendProps) {
   if (lists.length === 0) return null;
@@ -22,20 +26,40 @@ export default function MapLegend({
         Trips
       </p>
 
-      <div className="space-y-2">
-        {lists.map((list) => (
-          <div key={list.id} className="flex items-center gap-2 text-xs">
-            <span
-              className="h-3 w-3 shrink-0 rounded-full border border-white/30"
-              style={{ backgroundColor: list.color ?? "#8b5cf6" }}
-            />
+      <div className="space-y-1.5">
+        {lists.map((list) => {
+          const isSelected = selectedListId === list.id;
+          const listColor = list.color ?? "#8b5cf6";
 
-            <span className="truncate text-white/90">
-              {list.icon ? `${list.icon} ` : ""}
-              {list.name}
-            </span>
-          </div>
-        ))}
+          return (
+            <button
+              key={list.id}
+              type="button"
+              onClick={() => onSelectList(list.id)}
+              className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs transition ${
+                isSelected
+                  ? "bg-white/15 text-white ring-1"
+                  : "text-white/85 hover:bg-white/10 hover:text-white"
+              }`}
+              style={{
+                ringColor: isSelected ? listColor : undefined,
+              }}
+              title={list.name}
+            >
+              <span
+                className={`h-3 w-3 shrink-0 rounded-full border ${
+                  isSelected ? "border-white/70" : "border-white/30"
+                }`}
+                style={{ backgroundColor: listColor }}
+              />
+
+              <span className="min-w-0 flex-1 truncate">
+                {list.icon ? `${list.icon} ` : ""}
+                {list.name}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

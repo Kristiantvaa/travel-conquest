@@ -315,7 +315,12 @@ export default function Home() {
             </div>
           </div>
 
-          <MapLegend lists={lists} position="bottom-right" />
+          <MapLegend
+            lists={lists}
+            selectedListId={selectedListId}
+            onSelectList={handleSelectList}
+            position="bottom-right"
+          />
 
           <DynamicMap
             locations={locations}
