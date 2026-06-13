@@ -35,7 +35,7 @@ export function Lists({
         <div className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold text-white">
-              {selectedListDetails.icon ?? "🗺️"} {selectedListDetails.name}
+              {selectedListDetails.name}
             </h2>
             <p className="text-xs text-slate-400">
               {selectedListDetails.locations.length} locations
@@ -150,10 +150,7 @@ export function Lists({
                   borderLeft: `5px solid ${listColor}`,
                 }}
               >
-                <div className="truncate font-medium">
-                  {list.icon ?? "🗺️"} {list.name}
-                </div>
-
+                <div className="truncate font-medium">{list.name}</div>
                 {list.description && (
                   <div className="mt-0.5 truncate text-[11px] text-slate-400">
                     {list.description}

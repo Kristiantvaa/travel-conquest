@@ -311,7 +311,7 @@ export function LocationSearch({
                   <option value="">No list</option>
                   {lists.map((list) => (
                     <option key={list.id} value={list.id}>
-                      {list.icon ?? "🗺️"} {list.name}
+                      {list.name}
                     </option>
                   ))}
                 </select>

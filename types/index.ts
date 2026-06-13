@@ -41,7 +41,6 @@ export type ConquestList = {
   id: string;
   name: string;
   description: string | null;
-  icon: string | null;
   color: string | null;
   created_at: string;
   updated_at: string;
@@ -50,7 +49,6 @@ export type ConquestList = {
 export type NewConquestList = {
   name: string;
   description?: string | null;
-  icon?: string | null;
   color?: string | null;
 };
 

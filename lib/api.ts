@@ -43,7 +43,6 @@ export async function createConquestList(
     .insert({
       name: list.name,
       description: list.description ?? null,
-      icon: list.icon ?? "🗺️",
       color: list.color ?? "#8b5cf6",
     })
     .select()
@@ -147,7 +146,6 @@ export async function createLocationAndMaybeAddToList(params: {
   if (trimmedNewListName) {
     const createdList = await createConquestList({
       name: trimmedNewListName,
-      icon: "🗺️",
       color: params.newListColor || "#8b5cf6",
     });
 
@@ -194,7 +192,6 @@ export async function getLocationsWithLists(): Promise<LocationWithLists[]> {
           id,
           name,
           description,
-          icon,
           color,
           created_at,
           updated_at

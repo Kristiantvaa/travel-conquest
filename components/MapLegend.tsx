@@ -53,10 +53,7 @@ export default function MapLegend({
                 style={{ backgroundColor: listColor }}
               />
 
-              <span className="min-w-0 flex-1 truncate">
-                {list.icon ? `${list.icon} ` : ""}
-                {list.name}
-              </span>
+              <span className="min-w-0 flex-1 truncate">{list.name}</span>
             </button>
           );
         })}
