@@ -132,12 +132,19 @@ export default function MapView({
       <MapContainer
         center={[59.9139, 10.7522]}
         zoom={4}
+        minZoom={2}
+        maxBoundsViscosity={1.0}
+        maxBounds={[
+          [-70, -180],
+          [85.2, 180],
+        ]}
         scrollWheelZoom
         className="h-full w-full"
       >
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          noWrap={true}
         />
 
         <FlyToSelectedLocation
