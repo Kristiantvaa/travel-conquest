@@ -57,31 +57,69 @@ function createMarkerIcon({
         ? "#8b5cf6"
         : "#64748b";
 
-  const markerColor = color || fallbackColor;
+  const baseColor = color || fallbackColor;
+
+  const markerColor =
+    status === "want_to_visit"
+      ? `color-mix(in srgb, ${baseColor} 75%, white)`
+      : baseColor;
+
+  const symbolColor =
+    status === "visited"
+      ? `color-mix(in srgb, ${baseColor} 30%, white)`
+      : `white`;
+
+  const borderColor =
+    status === "visited"
+      ? `color-mix(in srgb, ${baseColor} 90%, black)`
+      : `white`;
+
   const symbol =
     status === "visited" ? "✓" : status === "want_to_visit" ? "★" : "";
+  const size =
+    isInSelectedList && status === "visited" ? 40 : isInSelectedList ? 34 : 28;
+
+  const borderWidth =
+    isInSelectedList && status === "visited" ? 5 : isInSelectedList ? 3 : 2;
+
+  const boxShadow =
+    status === "visited"
+      ? `
+        0 0 0 4px color-mix(in srgb, ${baseColor} 45%, transparent),
+        0 0 18px color-mix(in srgb, ${baseColor} 70%, transparent),
+        0 6px 18px rgba(0,0,0,0.5)
+      `
+      : `0 4px 14px rgba(0,0,0,0.35)`;
+
+  const fontSize =
+    status === "visited"
+      ? "20px"
+      : status === "want_to_visit"
+        ? "15px"
+        : "14px";
 
   return L.divIcon({
     className: "",
     html: `
       <div style="
-        width: ${isInSelectedList ? "34px" : "28px"};
-        height: ${isInSelectedList ? "34px" : "28px"};
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 9999px;
         background: ${markerColor};
-        border: ${isInSelectedList ? "4px" : "3px"} solid white;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+        border: ${borderWidth}px solid ${borderColor};
+        box-shadow: ${boxShadow};
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        color: white;
+        font-weight: 900;
+        font-size: ${fontSize};
+        color: ${symbolColor};
       ">
         ${symbol}
       </div>
     `,
-    iconSize: isInSelectedList ? [34, 34] : [28, 28],
-    iconAnchor: isInSelectedList ? [17, 17] : [14, 14],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 }
 
